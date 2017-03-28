@@ -12,35 +12,23 @@ config(['$locationProvider', '$routeProvider', function($locationProvider, $rout
   $routeProvider.otherwise({redirectTo: '/view1'});
 }]);
 
-
-function watchersOne() {
-    var root = $('body');
-    var watchers = [];
-    var f = function(element) {
-        if (element.data().hasOwnProperty('$scope')) {
-            angular.forEach(element.data().$scope.$$watchers, function(watcher) {
-                watchers.push(watcher);
-            });
-        }
-        angular.forEach(element.children(), function(childElement) {
-            f($(childElement));
-        });
-    };
-    f(root);
-    console.log(watchers.length);
-}
-
-
-function watchersTwo() { 
+function watchersFnk() { 
     var root = angular.element(document.getElementsByTagName('body'));
+
+    var scopes = new WeakSet();
 
     var watchers = [];
 
     var f = function (element) {
         angular.forEach(['$scope', '$isolateScope'], function (scopeProperty) { 
             if (element.data() && element.data().hasOwnProperty(scopeProperty)) {
-                angular.forEach(element.data()[scopeProperty].$$watchers, function (watcher) {
-                    watchers.push(watcher);
+                let scope = element.data()[scopeProperty];
+                if (scopes.has(scope)) {
+                    return;
+                }
+                scopes.add(scope);
+                angular.forEach(scope.$$watchers, function (watcher) {
+                    watchers.push({ watcher, exp: watcher.exp() });
                 });
             }
         });
@@ -52,18 +40,11 @@ function watchersTwo() {
 
     f(root);
 
-    // Remove duplicate watchers
-    var watchersWithoutDuplicates = [];
-    angular.forEach(watchers, function(item) {
-        if(watchersWithoutDuplicates.indexOf(item) < 0) {
-             watchersWithoutDuplicates.push(item);
-        }
-    });
-
-    console.log(watchersWithoutDuplicates.length);
+    console.log(watchers.length, watchers);
 }
 
-window.watchers = function() {
-	watchersOne();
-	watchersTwo();
-}
+Object.defineProperty(window, 'watchers', {
+    get: function() {
+        watchersFnk();
+    }
+});
