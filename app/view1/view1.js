@@ -11,21 +11,31 @@ angular.module('myApp.view1', ['ngRoute'])
 
 .controller('View1Ctrl', function($scope) {
 
-	let triggered = 0;
+	let triggered = false;
 
 	$scope.name = "World";
 
 	$scope.triggerDigest = function() {
-	 	triggered = 0;
+		triggered = true;
+		console.log('$scope.triggerDigest');
+
+		$scope.$evalAsync(function evalAsycCallback() {
+			console.log('evalAsycCallback');
+		})
+
+		console.log('afterSchedulingEvalAsync');
 	}
 
-	$scope.greeting = function greeting() {
-		
-		if (triggered < 10) {
-			triggered += 1;
+	$scope.greeting = function greeting() {	
+
+		if (triggered) {
+			triggered = false;
+			$scope.$evalAsync(function evalAsycCallback() {
+				console.log('evalAsycCallback inside $scope.greeting');
+			});
 		}
 
-		console.log("$scope.greeting was called", triggered);
+		console.log("$scope.greeting was called", triggered);		
 
 		return 'Hello ' + $scope.name + ' ' + triggered;
 	}
