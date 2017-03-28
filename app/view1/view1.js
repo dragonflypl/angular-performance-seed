@@ -10,4 +10,11 @@ angular.module('myApp.view1', ['ngRoute'])
 }])
 
 .controller('View1Ctrl', function($scope) {
+
+	$scope.name = "World";
+
+	$scope.greeting = function() {
+		console.log("$scope.greeting");
+		return 'Hello ' + $scope.name;
+	}
 });
