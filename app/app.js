@@ -60,7 +60,7 @@ function watchersTwo() {
         }
     });
 
-    console.log(watchersWithoutDuplicates.length);
+    console.log(watchersWithoutDuplicates, watchersWithoutDuplicates.length);
 }
 
 window.watchers = function() {
