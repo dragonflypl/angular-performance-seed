@@ -1,13 +1,20 @@
 <button ng-click="load(1)">Load 1</button>
 <button ng-click="load(2)">Load 2</button>
 <table>
+	<thread>
+		<tr>	
+			<td colspan=9><input placeholder="Filter by email" ng-model="search.email"</td>		
+		</tr>
+	</thead>
 	<tbody>
-		<tr ng-repeat="item in data | limitTo: 3000">
+		<tr ng-repeat="item in data | limitTo: 3000 | filter:propsFilter">
 			<td ng-bind="show(item, 'id')"></td>
 			<td ng-bind="show(item, 'firstName')"></td>
 			<td ng-bind="show(item, 'lastName')"></td>
 			<td ng-bind="show(item, 'phone')"></td>
-			<td ng-bind-html="show(item, 'email') | customLinky"></td> 
+			<td>
+				<a href="mailto:{{show(item, 'email')}}">{{show(item, 'email')}}</a>
+			</td> 
 			<!-- <td ng-bind="show(item, 'email')"></td> -->
 			<td ng-bind="show(item, 'nationality')"></td>
 			<td ng-bind="show(item, 'status')"></td>

@@ -17,14 +17,26 @@ angular.module('myApp.view1', ['ngRoute'])
     customLinky.counter = 0;
     return customLinky;
 })
-.controller('View1Ctrl', function($http, $scope, $interval, $filter) {
+.controller('View1Ctrl', function($log, $http, $scope, $interval, $filter) {
 
     var properties = {};
     var customLinky = $filter('customLinky');
 
+    $scope.search = {};
+
     $scope.load = function(num) {
     	fetchData(num);
     }
+
+    $scope.propsFilter = function(user) {
+        $scope.propsFilterCounter += 1;
+        if ($scope.search.email) {
+            return user.email.indexOf($scope.search.email) !== -1;
+        }
+        return true;
+    }
+
+    $scope.propsFilterCounter = 0;
 
     $scope.show = function(item, property) {    	
         properties[property] = (properties[property] || 0) + 1;
@@ -36,19 +48,22 @@ angular.module('myApp.view1', ['ngRoute'])
     function fetchData(num) {
 	    $http.get('../data' +  num + '.json').then(function(response) {
 	    	$scope.data = response.data;
-	    })  
+	    })
     }
 
     setInterval(function triggerDigest() {
         properties = {};
-        $scope.data.forEach(function(x) {
-            x.id += 1;
-        });
+        // NO MODEL UPDATES!
+        // $scope.data.forEach(function(x) {
+        //     x.id += 1;
+        // });
+        $scope.propsFilterCounter = 0;
         customLinky.counter = 0;
         $scope.$apply();
         for(let property in properties) {
             console.log(property + ' called ' + properties[property] + " times");
         }
-        console.log('customLinky called ' + customLinky.counter + " times")
+        $log.info('customLinky called ' + customLinky.counter + " times");
+        $log.warn('$scope.propsFilter.couter called ' + $scope.propsFilterCounter + " times");
     }, 3000);
 });
