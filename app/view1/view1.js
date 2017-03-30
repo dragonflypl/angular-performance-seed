@@ -11,11 +11,19 @@ angular.module('myApp.view1', ['ngRoute'])
 
 .controller('View1Ctrl', function($http, $scope, $interval) {
 
+    var properties = {};
+
+    $scope.changeModel = function() {
+        properties = {};        
+        $scope.data[0].id += 1;
+    }
+
     $scope.load = function(num) {
     	fetchData(num);
     }
 
     $scope.show = function(item, property) {    	
+        properties[property] = (properties[property] || 0) + 1;
     	return item[property];
     }
 
@@ -26,4 +34,10 @@ angular.module('myApp.view1', ['ngRoute'])
 	    	$scope.data = response.data;
 	    })  
     }
+
+    setInterval(function triggerDigest() {
+        for(let property in properties) {
+            console.log(property + ' called ' + properties[property] + " times");
+        }    
+    }, 3000);
 });
