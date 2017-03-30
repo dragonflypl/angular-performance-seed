@@ -1,1 +1,17 @@
-<p>This is the partial for view 1.</p>
+<button ng-click="load(1)">Load 1</button>
+<button ng-click="load(2)">Load 2</button>
+<table>
+	<tbody>
+		<tr ng-repeat="item in data | limitTo: 3000">
+			<td ng-bind="show(item, 'id')"></td>
+			<td ng-bind="show(item, 'firstName')"></td>
+			<td ng-bind="show(item, 'lastName')"></td>
+			<td ng-bind="show(item, 'phone')"></td>
+			<td ng-bind="show(item, 'email')"></td>
+			<td ng-bind="show(item, 'nationality')"></td>
+			<td ng-bind="show(item, 'status')"></td>
+			<td title="{{item.aboutMe}}">About me</td>
+			<td ng-bind="show(item, 'balance')"></td>
+		</tr>
+	</tbody>
+</table>

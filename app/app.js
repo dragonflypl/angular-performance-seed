@@ -8,9 +8,22 @@ angular.module('myApp', [
 ]).
 config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
   $locationProvider.hashPrefix('!');
-
   $routeProvider.otherwise({redirectTo: '/view1'});
-}]);
+}]).
+run(function($rootScope, $log) {
+
+    var originalDigest = $rootScope.$digest.bind($rootScope);
+
+    $rootScope.$digest = function() {
+        $log.info("$rootScope.$digest starts");
+        var t0 = performance.now();
+        originalDigest();
+        var t1 = performance.now();
+        var elapsed = Math.round(t1 - t0);
+        console[elapsed > 1000 ? 'warn' : 'info']("$rootScope.$digest " + elapsed + " ms.")
+        console.trace();
+    }
+});
 
 function watchersFnk() { 
     var root = angular.element(document.getElementsByTagName('body'));
@@ -28,7 +41,7 @@ function watchersFnk() {
                 }
                 scopes.add(scope);
                 angular.forEach(scope.$$watchers, function (watcher) {
-                    watchers.push({ watcher, exp: watcher.exp() });
+                    watchers.push({ watcher: watcher });
                 });
             }
         });

@@ -9,5 +9,21 @@ angular.module('myApp.view1', ['ngRoute'])
   });
 }])
 
-.controller('View1Ctrl', function($scope) {
+.controller('View1Ctrl', function($http, $scope, $interval) {
+
+    $scope.load = function(num) {
+    	fetchData(num);
+    }
+
+    $scope.show = function(item, property) {    	
+    	return item[property];
+    }
+
+	$scope.load(1);
+
+    function fetchData(num) {
+	    $http.get('../data' +  num + '.json').then(function(response) {
+	    	$scope.data = response.data;
+	    })  
+    }
 });
