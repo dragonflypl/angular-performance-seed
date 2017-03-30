@@ -32,7 +32,13 @@ angular.module('myApp.view1', ['ngRoute'])
 
     setInterval(function triggerDigest() {
         properties = {};
-        $scope.data[2999].id += 1;
+        $scope.data.forEach(function(x) {
+            x.id += 1;
+            if (x.balance) {
+                x.balance = x.balance + 1
+            }
+        });
+
         $scope.$apply();
         for(let property in properties) {
             console.log(property + ' called ' + properties[property] + " times");
