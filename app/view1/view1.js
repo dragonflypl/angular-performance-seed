@@ -13,11 +13,6 @@ angular.module('myApp.view1', ['ngRoute'])
 
     var properties = {};
 
-    $scope.changeModel = function() {
-        properties = {};        
-        $scope.data[0].id += 1;
-    }
-
     $scope.load = function(num) {
     	fetchData(num);
     }
@@ -36,8 +31,11 @@ angular.module('myApp.view1', ['ngRoute'])
     }
 
     setInterval(function triggerDigest() {
+        properties = {};
+        $scope.data[2999].id += 1;
+        $scope.$apply();
         for(let property in properties) {
             console.log(property + ' called ' + properties[property] + " times");
-        }    
+        }
     }, 3000);
 });
