@@ -8,10 +8,19 @@ angular.module('myApp.view1', ['ngRoute'])
     controller: 'View1Ctrl'
   });
 }])
-
-.controller('View1Ctrl', function($http, $scope, $interval) {
+.filter('customLinky', function($filter) {
+    var linkify = $filter('linky');
+    var customLinky = function(value) {
+        customLinky.counter += 1;
+        return linkify(value);
+    }
+    customLinky.counter = 0;
+    return customLinky;
+})
+.controller('View1Ctrl', function($http, $scope, $interval, $filter) {
 
     var properties = {};
+    var customLinky = $filter('customLinky');
 
     $scope.load = function(num) {
     	fetchData(num);
@@ -34,14 +43,12 @@ angular.module('myApp.view1', ['ngRoute'])
         properties = {};
         $scope.data.forEach(function(x) {
             x.id += 1;
-            if (x.balance) {
-                x.balance = x.balance + 1
-            }
         });
-
+        customLinky.counter = 0;
         $scope.$apply();
         for(let property in properties) {
             console.log(property + ' called ' + properties[property] + " times");
         }
+        console.log('customLinky called ' + customLinky.counter + " times")
     }, 3000);
 });

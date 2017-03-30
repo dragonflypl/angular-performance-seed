@@ -7,7 +7,8 @@
 			<td ng-bind="show(item, 'firstName')"></td>
 			<td ng-bind="show(item, 'lastName')"></td>
 			<td ng-bind="show(item, 'phone')"></td>
-			<td ng-bind="show(item, 'email')"></td>
+			<td ng-bind-html="show(item, 'email') | customLinky"></td> 
+			<!-- <td ng-bind="show(item, 'email')"></td> -->
 			<td ng-bind="show(item, 'nationality')"></td>
 			<td ng-bind="show(item, 'status')"></td>
 			<td title="{{item.aboutMe}}">About me</td>
