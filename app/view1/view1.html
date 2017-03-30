@@ -7,7 +7,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		<tr ng-repeat="item in data | limitTo: 3000 | filter:propsFilter">
+		<tr ng-repeat="item in filteredData | limitTo: 3000 | filter:propsFilter">
 			<td ng-bind="show(item, 'id')"></td>
 			<td ng-bind="show(item, 'firstName')"></td>
 			<td ng-bind="show(item, 'lastName')"></td>

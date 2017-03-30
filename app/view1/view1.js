@@ -28,12 +28,28 @@ angular.module('myApp.view1', ['ngRoute'])
     	fetchData(num);
     }
 
-    $scope.propsFilter = function(user) {
+    $scope.$watchCollection('data', function(newValue, oldValue) {
+        if (newValue === oldValue) {
+            return;
+        } 
+        doFilter();   
+    });
+
+    $scope.$watchCollection('search', function(newValue, oldValue) {
+        if (newValue === oldValue || !$scope.data) {
+            return;
+        } 
+        doFilter();   
+    });
+
+    function doFilter() {
         $scope.propsFilterCounter += 1;
-        if ($scope.search.email) {
-            return user.email.indexOf($scope.search.email) !== -1;
-        }
-        return true;
+        $scope.filteredData = $scope.data.filter(function(user) {
+            if ($scope.search.email) {
+                return user.email.indexOf($scope.search.email) !== -1;
+            }
+            return true;
+        });        
     }
 
     $scope.propsFilterCounter = 0;
@@ -47,17 +63,16 @@ angular.module('myApp.view1', ['ngRoute'])
 
     function fetchData(num) {
 	    $http.get('../data' +  num + '.json').then(function(response) {
-	    	$scope.data = response.data;
+	    	$scope.filteredData = $scope.data = response.data;
 	    })
     }
-
+    
     setInterval(function triggerDigest() {
         properties = {};
         // NO MODEL UPDATES!
         // $scope.data.forEach(function(x) {
         //     x.id += 1;
         // });
-        $scope.propsFilterCounter = 0;
         customLinky.counter = 0;
         $scope.$apply();
         for(let property in properties) {
