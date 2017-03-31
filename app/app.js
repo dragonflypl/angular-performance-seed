@@ -32,8 +32,17 @@ function watchersFnk() {
     var scopes = new WeakSet();
 
     var watchers = [];
+    var eventListenersCount = 0;
 
     var f = function (element) {
+        var eventListeners = getEventListeners(element[0])
+
+        if (eventListeners) {
+            Object.getOwnPropertyNames(eventListeners).forEach(function(eventType) {
+                eventListenersCount += eventListeners[eventType].length;
+            })
+        }
+
         angular.forEach(['$scope', '$isolateScope'], function (scopeProperty) { 
             if (element.data() && element.data().hasOwnProperty(scopeProperty)) {
                 let scope = element.data()[scopeProperty];
@@ -54,6 +63,7 @@ function watchersFnk() {
 
     f(root);
 
+    console.log('Listeners registered: ' + eventListenersCount);
     console.log(watchers.length, watchers);
 }
 
