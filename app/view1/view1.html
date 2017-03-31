@@ -8,18 +8,18 @@
 	</thead>
 	<tbody>
 		<tr ng-repeat="item in filteredData | limitTo: 3000 | filter:propsFilter">
-			<td ng-bind="show(item, 'id')"></td>
+			<td ng-class="{ 'odd': item.id % 2, 'even': !(item.id % 2) }" ng-bind="show(item, 'id')"></td>
 			<td ng-bind="show(item, 'firstName')"></td>
 			<td ng-bind="show(item, 'lastName')"></td>
-			<td ng-bind="show(item, 'phone')"></td>
-			<td>
+			<td ng-class="item.phone.indexOf('.') !== -1 ? 'dotted': 'not-dotted'" ng-bind="show(item, 'phone')"></td>
+			<td ng-class="{ gmail: mailType(item.email) === 'gmail', hotmail: mailType(item.email) === 'hotmail', othermail: mailType(item.email) === 'othermail' }">
 				<a href="mailto:{{show(item, 'email')}}">{{show(item, 'email')}}</a>
 			</td> 
 			<!-- <td ng-bind="show(item, 'email')"></td> -->
 			<td ng-bind="show(item, 'nationality')"></td>
-			<td ng-bind="show(item, 'status')"></td>
+			<td ng-class="{ 'taken': item.status === 'yes', 'free': item.status !== 'yes' }" ng-bind="show(item, 'status')"></td>
 			<td title="{{item.aboutMe}}">About me</td>
-			<td ng-bind="show(item, 'balance')"></td>
+			<td ng-class="{ 'rich': numericBalance(item.balance) >= 30000, 'poor': numericBalance(item.balance) < 30000 }" ng-bind="show(item, 'balance')"></td>
 		</tr>
 	</tbody>
 </table>

@@ -23,3 +23,47 @@
   content: "|";
   padding-right: 0.3em;
 }
+
+.gmail {
+	background-color: grey;
+}
+
+.hotmail {
+	background-color: yellow;
+}
+
+.othermail {
+	background-color: white;
+}
+
+.poor {
+	background-color: red;
+}
+
+.rich {
+	background-color: blue;
+}
+
+.free {
+	color: green;
+}
+
+.taken {
+	color: red;
+}
+
+.dotted {
+	text-decoration: underline;
+}
+
+.not-dotted {
+	text-decoration: line-through;
+}
+
+.odd {
+	color: red;
+}
+
+.even {
+	color: green;
+}
