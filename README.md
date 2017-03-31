@@ -1,295 +1,434 @@
-# `angular-seed` — the seed for AngularJS apps
+# Tools
 
-This project is an application skeleton for a typical [AngularJS][angularjs] web app. You can use it
-to quickly bootstrap your angular webapp projects and dev environment for these projects.
+- https://github.com/mrdoob/stats.js/
+- AngularJS Batarang
+- AngularJS Inspector
+- ng-inspector for AngularJS
+- Angular watchers
+- console.time API along with Chrome Timeline & Profiler!
 
-The seed contains a sample AngularJS application and is preconfigured to install the Angular
-framework and a bunch of development and testing tools for instant web development gratification.
+# Scopes
 
-The seed app doesn't do much, just shows how to wire two controllers and views together.
+Scopes:
+- is a glue between controller and view (data use to render the view)
+- represents application model
+- are a context for expressions (e.g. `{{someExpression()}`}. Expressions are evaluated on the scopes.
+- arranged in a hierarchy (child / isolated scopes)
 
+# Phases
 
-## Getting Started
+## Linking
 
-To get you started you can simply clone the `angular-seed` repository and install the dependencies:
+Watchers are set for found expressions by the directives. During template linking, directives register watches on the scope. This watches are used to propagate model values to the DOM.
 
-### Prerequisites
+> Hint, `ng-bind` code: https://github.com/angular/angular.js/blob/master/src/ng/directive/ngBind.js#L3
 
-You need git to clone the `angular-seed` repository. You can get git from [here][git].
+> git checkout 03-watcher-execution
 
-We also use a number of Node.js tools to initialize and test `angular-seed`. You must have Node.js
-and its package manager (npm) installed. You can get them from [here][node].
+## Hierarchy
 
-### Clone `angular-seed`
+Scope inheritance is `prototypal`. It means that when expression is evaluated, it is first evaluated on current nodes scope. If not found, it goes down the inheritance chain.
 
-Clone the `angular-seed` repository using git:
+> git checkout 02-app-controller-inheritance
 
-```
-git clone https://github.com/angular/angular-seed.git
-cd angular-seed
-```
+> Hint: to access currently accessed element, use `$0` variable in console. To retrieve associated scope use `angular.element($0).scope()` or `angular.element($0).isolateScope()`. Both functions are available only when `debugInfoEnabled()` is true.
 
-If you just want to start a new project without the `angular-seed` commit history then you can do:
+`angular.element($0).scope().id` evaluated on child node, returns `AppController`.
 
-```
-git clone --depth=1 https://github.com/angular/angular-seed.git <your-project-name>
-```
+Also: 
 
-The `depth=1` tells git to only pull down one commit worth of historical data.
-
-### Install Dependencies
-
-We have two kinds of dependencies in this project: tools and Angular framework code. The tools help
-us manage and test the application.
-
-* We get the tools we depend upon via `npm`, the [Node package manager][npm].
-* We get the Angular code via `bower`, a [client-side code package manager][bower].
-* In order to run the end-to-end tests, you will also need to have the
-  [Java Development Kit (JDK)][jdk] installed on your machine. Check out the section on
-  [end-to-end testing](#e2e-testing) for more info.
-
-We have preconfigured `npm` to automatically run `bower` so we can simply do:
-
-```
-npm install
+``` javascript
+angular.element($0).scope().__proto__ == angular.element($0).scope().$parent
 ```
 
-Behind the scenes this will also call `bower install`. After that, you should find out that you have
-two new folders in your project.
+prove that we're dealing with prototypal inheritance.
 
-* `node_modules` - contains the npm packages for the tools we need
-* `app/bower_components` - contains the Angular framework files
+### $rootScope
 
-*Note that the `bower_components` folder would normally be installed in the root folder but
-`angular-seed` changes this location through the `.bowerrc` file. Putting it in the `app` folder
-makes it easier to serve the files by a web server.*
+Each application has single `$rootScope`. Each scope (child/isolated) has a reference to `$rootScope`
 
-### Run the Application
+## $apply & $digest & $watch
 
-We have preconfigured the project with a simple development web server. The simplest way to start
-this server is:
+All changes to the model (scope) must be done inside Angular's execution context (i.e. digest cycle must be triggered).
 
-```
-npm start
-```
+To enter this context, `$apply` method can be used:
 
-Now browse to the app at [`localhost:8000/index.html`][local-app-url].
+> Angular's code: https://github.com/angular/angular.js/blob/master/src/ng/directive/ngEventDirs.js#L3
 
+`$apply` is just a helper/wrapper method that calls `$rootScope.$digest` after client's code runs (at the end of $apply). A digest cycle starts with `$scope.$digest()` call.
 
-## Directory Layout
-
-```
-app/                    --> all of the source files for the application
-  app.css               --> default stylesheet
-  components/           --> all app specific modules
-    version/              --> version related components
-      version.js                 --> version module declaration and basic "version" value service
-      version_test.js            --> "version" value service tests
-      version-directive.js       --> custom directive that returns the current app version
-      version-directive_test.js  --> version directive tests
-      interpolate-filter.js      --> custom interpolation filter
-      interpolate-filter_test.js --> interpolate filter tests
-  view1/                --> the view1 view template and logic
-    view1.html            --> the partial template
-    view1.js              --> the controller logic
-    view1_test.js         --> tests of the controller
-  view2/                --> the view2 view template and logic
-    view2.html            --> the partial template
-    view2.js              --> the controller logic
-    view2_test.js         --> tests of the controller
-  app.js                --> main application module
-  index.html            --> app layout file (the main html template file of the app)
-  index-async.html      --> just like index.html, but loads js files asynchronously
-karma.conf.js         --> config file for running unit tests with Karma
-e2e-tests/            --> end-to-end tests
-  protractor-conf.js    --> Protractor config file
-  scenarios.js          --> end-to-end scenarios to be run by Protractor
+``` javascript 
+function $apply(expr) {
+  try {
+    return $eval(expr);
+  } catch (e) {
+    $exceptionHandler(e);
+  } finally {
+    $root.$digest();
+  }
+}
 ```
 
+It's important to notice, that it calls `$digest` on `$rootScope`. That means that **all watchers (watchExpressions) will be called on each digest cycle loop iteration**!
 
-## Testing
+> Angular directives / services automatically call $digest (e.g. ng-click, $timeout)
 
-There are two kinds of tests in the `angular-seed` application: Unit tests and end-to-end tests.
+Having this in mind remember: **dirty checking function must be efficient and fast**.
 
-### Running Unit Tests
+What if a listener function itself changed a scope model?
 
-The `angular-seed` app comes preconfigured with unit tests. These are written in [Jasmine][jasmine],
-which we run with the [Karma][karma] test runner. We provide a Karma configuration file to run them.
+In `$digest` scopes examine all of the `$watch` expressions and compare them with the previous value. It's called `dirty checking`. If current value is different from previous, `$watch` listener is executed.
 
-* The configuration is found at `karma.conf.js`.
-* The unit tests are found next to the code they are testing and have an `_test.js` suffix (e.g.
-  `view1_test.js`).
+`$digest` is repeated untill there're no changes (`$watch`'ers do no detect any changes)
 
-The easiest way to run the unit tests is to use the supplied npm script:
+> git checkout 04-num-digest-loops + show window.watchers
 
-```
-npm test
-```
+![image](https://cloud.githubusercontent.com/assets/5444220/24399818/5a5a7986-13ae-11e7-8793-d11516a1b477.png)
 
-This script will start the Karma test runner to execute the unit tests. Moreover, Karma will start
-watching the source and test files for changes and then re-run the tests whenever any of them
-changes.
-This is the recommended strategy; if your unit tests are being run every time you save a file then
-you receive instant feedback on any changes that break the expected code functionality.
+`Dirty checking` is done anynchronously - not immediately - when call stack becomes empty.
 
-You can also ask Karma to do a single run of the tests and then exit. This is useful if you want to
-check that a particular version of the code is operating as expected. The project contains a
-predefined script to do this:
+If `$watch` causes changes of the value of the model, it will force additional `$digest` cycle.
 
-```
-npm run test-single-run
-```
+Let's see how it looks in dev tools:
 
+![image](https://cloud.githubusercontent.com/assets/5444220/24363701/e441ca80-1310-11e7-8a03-e46bce4b8518.png)
 
-<a name="e2e-testing"></a>
-### Running End-to-End Tests
+![image](https://cloud.githubusercontent.com/assets/5444220/24396463/943e97aa-13a3-11e7-8c5c-096c96e995eb.png)
 
-The `angular-seed` app comes with end-to-end tests, again written in [Jasmine][jasmine]. These tests
-are run with the [Protractor][protractor] End-to-End test runner. It uses native events and has
-special features for Angular applications.
+### $evalAsync
 
-* The configuration is found at `e2e-tests/protractor-conf.js`.
-* The end-to-end tests are found in `e2e-tests/scenarios.js`.
+This is addition to the `$digest` cycle. In reality, apart from `$watch` list, Angular is storing additional queue: `$evalAsync` queue. This is useful when we need to execute some code asynchronously i.e. at the beginning of next digest cycle loop. Putting something into this queue will enforce additional digest iteration.
 
-Protractor simulates interaction with our web app and verifies that the application responds
-correctly. Therefore, our web server needs to be serving up the application, so that Protractor can
-interact with it.
+Also use `$applyAsync` to queue async code that will be run before next `$digest` cycle.
 
-**Before starting Protractor, open a separate terminal window and run:**
+> git checkout 05-eval-async
 
-```
-npm start
-```
+### $watch strategies
 
-In addition, since Protractor is built upon WebDriver, we need to ensure that it is installed and
-up-to-date. The `angular-seed` project is configured to do this automatically before running the
-end-to-end tests, so you don't need to worry about it. If you want to manually update the WebDriver,
-you can run:
+- by reference (good) using `!==` (angular's default)
+- by value (bad) using `angular.copy` (creates deep copy) - can have memory / performance implications 
+- watching collection content (ugly, but needed sometimes) with `$watchCollection`. Notifies about changes in collection (add/removal/replacement)
 
-```
-npm run update-webdriver
-```
+Also there's helper `$watchGroup`.
 
-Once you have ensured that the development web server hosting our application is up and running, you
-can run the end-to-end tests using the supplied npm script:
+> git checkout 06-watch-strategies-strict-non-strict
 
-```
-npm run protractor
-```
+# Hints
 
-This script will execute the end-to-end tests against the application being hosted on the
-development server.
+Watches are set on:
 
-**Note:**
-Under the hood, Protractor uses the [Selenium Standalone Server][selenium], which in turn requires
-the [Java Development Kit (JDK)][jdk] to be installed on your local machine. Check this by running
-`java -version` from the command line.
+- $scope.$watch
+- {{ }} type bindings
+- Most directives (i.e. ng-show)
+- Scope variables scope: { bar: '='}
+- Filters {{ value | myFilter }}
+- ng-repeat
 
-If JDK is not already installed, you can download it [here][jdk-download].
+Watchers (digest cycle) run on:
 
+- User action (ng-click etc). Most built in directives will call $scope.apply upon completion which triggers the digest cycle.
+- ng-change
+- ng-model
+- $http events (so all ajax calls)
+- $q promises resolved
+- $timeout
+- $interval
+- Manual call to $scope.apply and $scope.digest
 
-## Updating Angular
+How to improve performance:
 
-Since the Angular framework library code and tools are acquired through package managers (npm and
-bower) you can use these tools to easily update the dependencies. Simply run the preconfigured
-script:
+- use digest instead of apply
+- More DOM manipulation in Directives (e.g. swich classes in onclick event, without watchers) link function
+- use ng-if in favour of ng-show/hide
+- use classList
+- use track by (by default is uses `$watchCollection` and reference identity) in ngRepeat
+- debounce ng-model with ng-model-options
+- use one time binding (::) 
+- make sure onetime binding is "stable"
 
-```
-npm run update-deps
-```
+How to improve performance (to prove):
 
-This will call `npm update` and `bower update`, which in turn will find and install the latest
-versions that match the version ranges specified in the `package.json` and `bower.json` files
-respectively.
+- disable ngAnimate globally / enable is explicitly with `$animateProvider.classNameFilter`: https://www.bennadel.com/blog/2935-enable-animations-explicitly-for-a-performance-boost-in-angularjs.htm
+- use angular components and one way binding (read about it and explain)
+- defered interpolation (my favourite): (https://www.bennadel.com/blog/2704-deferring-attribute-interpolation-in-angularjs-for-better-performance.htm)
+- delayed transclusion: ng-if / switch are cool as they delay linking of a DOM elements (as a result, delay watchers creation)
+- useCache factory
+- use WeakMap / WeakSet
+- clean after yourself in $destroy ($watach,$on,$timeout)
+- throttle / debounce mouse events
+- use applyAsync (group many async operations into one digest)
+- unbind watchers
+- do not use angulars directives for mouse events
+- avoid using filters if at all possible. They are run twice per digest cycle, once when anything changes, and another time to collect further changes
+- disable debug data! (debugInfoEnabled)
 
+- don't use filters for sorting!
+- reduce number of watchers :)
+- make manual watchers lightning fast
+- don't use deep watch `$watch`
+- switch from deep watch to `$watchCollection`
+- if deep watch must be used, watch only subset of data (`_.map`)
+- virtualize ngRepeat
+- use native JavaScript & lodash
 
-## Loading Angular Asynchronously
+# Hands on performance
 
-The `angular-seed` project supports loading the framework and application scripts asynchronously.
-The special `index-async.html` is designed to support this style of loading. For it to work you must
-inject a piece of Angular JavaScript into the HTML page. The project has a predefined script to help
-do this:
+> git checkout 10-performance-data-seed
 
-```
-npm run update-index-async
-```
+- we have two sets of data and table with 3000 rows
+- 27004 initially set (`window.watchers`)
+- we have instrumented `$rootScope.$digest` to get feedback when full digest runs & how much time it takes
+- stats.js enabled to see memory usage / FPS
+- progress bar enabled to spot UI freezes
 
-This will copy the contents of the `angular-loader.js` library file into the `index-async.html`
-page. You can run this every time you update the version of Angular that you are using.
+## Initial impression
 
+- page is working
+- watchers are waiting
+- FPS good
+- short freeze when binding the data
 
-## Serving the Application Files
+Let's trigger full digest every 3 seconds:
 
-While Angular is client-side-only technology and it is possible to create Angular web apps that
-do not require a backend server at all, we recommend serving the project files using a local
-web server during development to avoid issues with security restrictions (sandbox) in browsers. The
-sandbox implementation varies between browsers, but quite often prevents things like cookies, XHR,
-etc to function properly when an HTML page is opened via the `file://` scheme instead of `http://`.
-
-### Running the App during Development
-
-The `angular-seed` project comes preconfigured with a local development web server. It is a Node.js
-tool called [http-server][http-server]. You can start this web server with `npm start`, but you may
-choose to install the tool globally:
-
-```
-sudo npm install -g http-server
+``` javascript
+    setInterval(function triggerDigest() {
+     $scope.$root.$apply();
+    }, 3000);  
 ```
 
-Then you can start your own development web server to serve static files from a folder by running:
+![image](https://cloud.githubusercontent.com/assets/5444220/24495234/d1a7f824-1534-11e7-8b1f-b1666fd8f6e6.png)
+
+Conclusion: JavaScript / watchers execution is blazing fast: 27004 executed on 0.2 second.
+
+Let's add more statistics:
 
 ```
-http-server -a localhost -p 8000
+    var properties = {};
+    
+    $scope.show = function(item, property) {    	
+        properties[property] = (properties[property] || 0) + 1;
+    	return item[property];
+    }   
+    
+    setInterval(function triggerDigest() {
+        properties = {};
+        $scope.$apply();
+        for(let property in properties) {
+            console.log(property + ' called ' + properties[property] + " times");
+        }    
+    }, 3000);    
 ```
 
-Alternatively, you can choose to configure your own web server, such as Apache or Nginx. Just
-configure your server to serve the files under the `app/` directory.
+We get to know how many times watch callbacks are called per digest cycle. Initially it is 3000 times when no model changes. Let's change a model:
 
-### Running the App in Production
+> git checkout 11-model-change
 
-This really depends on how complex your app is and the overall infrastructure of your system, but
-the general rule is that all you need in production are the files under the `app/` directory.
-Everything else should be omitted.
+Quiz: how many times watchers will be called ?
 
-Angular apps are really just a bunch of static HTML, CSS and JavaScript files that need to be hosted
-somewhere they can be accessed by browsers.
+![image](https://cloud.githubusercontent.com/assets/5444220/24496687/33e9290a-1539-11e7-8dde-fe20022b1c82.png)
 
-If your Angular app is talking to the backend server via XHR or other means, you need to figure out
-what is the best way to host the static files to comply with the same origin policy if applicable.
-Usually this is done by hosting the files by the backend server or through reverse-proxying the
-backend server(s) and web server(s).
+But what will happend if we modify last item in the table:
+
+![image](https://cloud.githubusercontent.com/assets/5444220/24496726/5c5caac4-1539-11e7-9144-d3b4261ee203.png)
+
+What about item it the middle:
+
+![image](https://cloud.githubusercontent.com/assets/5444220/24496812/9ec9a7ea-1539-11e7-8ec4-9bffe609d570.png)
+
+**Conclusion: Wow! Angular optimizes digest loop (just like JIT), so it's not as dummy. So sometimes, you will not know why something is happening or not happening.**
+
+Ok, let's measure how modification of the model affects digest loop times:
+
+> git checkout 11-model-change-measure
+
+Times are doubled. 
+
+![image](https://cloud.githubusercontent.com/assets/5444220/24499142/ff4c3892-1540-11e7-96f4-6753fb508815.png)
+
+Let's modify all id properties. Time increased a bit due to DOM updates. Let's update more stuff in model (balance).
+
+> git checkout 12-more-model-changes
+
+Now we get 500ms digest cycle (but this is only JavaScript!) + a great deal of repaint:
+
+![image](https://cloud.githubusercontent.com/assets/5444220/24499318/8f2dd97a-1541-11e7-9906-412560c3ef5b.png)
+
+Now, everything takes more than 1 second (1.2sec) that can already cause flickering. But this is still not bad (but not something to be proud of), provided we don't cause digest cycles to often.
+
+**Conclusion: both JavaScript & Rendering are responsible for user experience & amount of work browser has to perform.**
+
+## Filters
+
+Filters are commonly used in presentation layer to format data. Let's see them in action and generate links for emails using built-in filter `<td ng-bind-html="show(item, 'email') | linky"></td>`.
+
+Before: `$rootScope.$digest 448 ms.`
+**After: `$rootScope.$digest 1479 ms.`** 
+
+> **Keep in mind that number of watchers did not change**
+
+Adding one, seemingly straightfowrard, filter increased digest time by 1sec. We did not change emails so, seemingly, angular should ignore the filter. However, filters are not assumed to be `pure functions` - they could return different value for the same input. What is more, let's check how many times filters are called (we'll implement custom filter).
+
+> git checkout 12-filter-measure
+
+Indeed, filters are called as many times as other watcher. So whole expression (with filter) is evaluated.
+
+Faster alternative:
+
+```
+<td>
+	<a href="mailto:{{show(item, 'email')}}">{{show(item, 'email')}}</a>
+</td> 
+```
+
+**app.js:24 $rootScope.$digest 514 ms.** back to normal time. We already proved that simple expressions are blazing fast, so even though we evaluate `show(item, 'email')` twice, there's basically no difference in time.
+
+### ng-repeat filter
+
+Let's add ng-repeat filter and see how it behaves.
+
+> git checkout 13-ng-repeat-filter
+
+Note that all model changes are disabled. Once again we see that filter is evaluated for each row each. So we filtering array even though nothing is changing.
+
+Alternative: use `$watchCollection` for filter object & source data:
+
+> git checkout 14-ng-repeat-manual
+
+But let's check what is happening when we type change filters : many digest cycles after each keyup event.
+
+We can fix it with `ng-model-options="{ debounce: 500 }"`.
+
+**Bottom Line: don't use filters for filtering in ng-repeat**
+
+## styling
+
+> git checkout ng-class 15-ng-class-many
+
+We have 15k additional watchers + rendering time doubled (1100ms). Let's do some extreme optimization that include manual dirty checking & low level classList API (reduced number of watchers to only additional 3k + only +100ms additional digest time instead of +500ms).
+
+> git checkout ng-class 16-ng-class-many-optimized
+
+## one-time binding
+
+For watchers, that're not interested in expression value changes or value never changes, use one-time binding `::`. Let's assume that balance does not change.
+
+> git checkout 18-one-time-enabled
+
+Note, that Batarang has a bug that prevents one-time binding from working, so for the purpose of this exercise disable it.
+
+But... Number of watchers should decrease by number of rows, but it did not. This is because of "Value stabilization algorithm" implementation (https://docs.angularjs.org/guide/expression) . 
+
+To fix it (provided we're sure that balance will never change) we need to cheat and stabilize the expressions value:
+
+```
+<td ng-bind="::(show(item, 'balance') || '')"></td>
+```
+
+## track by
+
+By default, ng-repeat is using identity comparsion (reference) to spot if data has changed and DOM should be updated. Let's reload the data & see UI experience & have a look at profiler (rendering & scripting times).
+
+> git checkout 17-no-track-by
+
+Each data reload freezes UI, even though nothing has changed in the model.
+
+Now, let's add `track by item.id`. No rendering & no additional scripting (except regular digest cycle watch execution).
+
+## ng-if vs ng-show
+
+> git checkout 19-ng-if-or-show
+
+`ngShow` uses CSS to show hide elements: as a result they still exist in DOM and all directives are executed (thus watchers).
+
+`ngIf` removes / adds to DOM, thus compilation/linking is triggered.  However no watchers are set when element is not visible.
+
+DOM operations are slower so make right call - if elements are often toggled then `ngShow` would be better (no compilation/linking each time element is toggled). Otherwise `ngIf` would be preferred. 
+
+Another usage could be with email col. Let's assume we want to show email when cell is clicked:
+
+```
+<td class="email-col" ng-click="showEmail = true">				
+	<a ng-show="showEmail" href="mailto:{{show(item, 'email')}}">{{show(item, 'email')}}</a>
+</td> 
+```
+
+With `ngShow` we have additional watchers, and `a` is in the DOM anyway, just `display: none`.
+
+Changing to `ngIf` defers anchor creation to the moment when this is actually needed:
+
+> git checkout 20-ng-if-makes-sense
+
+What else can be improved? Use oneTime binding on showEmail and no ngInit. Once cell is clicked, we save one watcher :)
+
+But, there're more improvements that can be made...
+
+## More DOM manipulation in Directives
+
+Make Directives, not war! Current example has following things that could be improved:
+
+- ngClick handler is not detached
+- we trigger full digest with ngClick even though nothing changes in the model (apart from helper variable)
+- email cell is still compiled & linked (ngIf directive) once at page load to figure out that is should remove itself from the DOM
+
+Let's refactor it:
+
+> git checkout 21-directive-beauty
+
+Few things to notice:
+
+- usage digest instead of apply (we do not trigger full $digest for all watchers, only for row scope)
+- we unbind event handlers (`one`)
+- we have no single watcher added
+
+## Event delegation
+
+Let's check how many event handlers do we have registered on the page:
+
+> git checkout  22-event-delegation
+
+(this may seem not needed, but will make more sense when we add e.g. virtual scroll)
+
+> git checkout  23-event-delegation-implemented
+
+# TODO: 
+
+- amazing example of using profiler ! https://www.bennadel.com/blog/2635-looking-at-how-scope-evalasync-affects-performance-in-angularjs-directives.htm
+- use empty ng-repeat, show that it creates watchers
+- https://docs.google.com/document/d/1K-mKOqiUiSjgZTEscBLjtjd6E67oiK8H2ztOiq5tigk/pub
+- do filters affect number of watchers ? how one time binding works with filters ? 
+- httpprovider useApplyAsync
+- show example : watching by reference with directive (how & when watchers are called)
+- $digest
+- $broadcast & $emit
+- $watch - observe model mutations
+- $apply - propagate model changes if done outside of angular world
+- CRUCIAL: https://github.com/bahmutov/code-snippets
 
 
-## Continuous Integration
+measure idle digets cycle loop time:
+``` javascript
+angular.element(document.querySelector('[ng-app]')).injector().invoke(function($rootScope) { 
+  var a = performance.now(); 
+  $rootScope.$apply(); 
+  console.log(performance.now()-a); 
+})
+```
 
-### Travis CI
-
-[Travis CI][travis] is a continuous integration service, which can monitor GitHub for new commits to
-your repository and execute scripts such as building the app or running tests. The `angular-seed`
-project contains a Travis configuration file, `.travis.yml`, which will cause Travis to run your
-tests when you push to GitHub.
-
-You will need to enable the integration between Travis and GitHub. See the
-[Travis website][travis-docs] for instructions on how to do this.
-
-
-## Contact
-
-For more information on AngularJS please check out [angularjs.org][angularjs].
+# TODO-DONE
 
 
-[angularjs]: https://angularjs.org/
-[bower]: http://bower.io/
-[git]: https://git-scm.com/
-[http-server]: https://github.com/indexzero/http-server
-[jasmine]: https://jasmine.github.io/
-[jdk]: https://wikipedia.org/wiki/Java_Development_Kit
-[jdk-download]: http://www.oracle.com/technetwork/java/javase/downloads
-[karma]: https://karma-runner.github.io/
-[local-app-url]: http://localhost:8000/index.html
-[node]: https://nodejs.org/
-[npm]: https://www.npmjs.org/
-[protractor]: http://www.protractortest.org/
-[selenium]: http://docs.seleniumhq.org/
-[travis]: https://travis-ci.org/
-[travis-docs]: https://docs.travis-ci.com/user/getting-started
+- https://www.binpress.com/tutorial/speeding-up-angular-js-with-simple-optimizations/135
+- https://www.qualtrics.com/eng/tuning-angularjs-performance/
+- https://www.airpair.com/angularjs/posts/angularjs-performance-large-applications
+- https://www.stackchief.com/blog/Understanding%20Watchers%20in%20AngularJS
+- https://www.alexkras.com/11-tips-to-improve-angularjs-performance/
+- http://www.codelord.net/2014/06/17/angular-performance-101-slides/
+- filtering to achieve sorting? how bad is it.
+- https://www.sitepoint.com/understanding-angulars-apply-digest/
+- https://docs.angularjs.org/guide/scope
+- https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$watch
+- https://www.bennadel.com
+  - https://www.bennadel.com/blog/2566-scope-watch-vs-watchcollection-in-angularjs.htm
+  - https://www.bennadel.com/blog/2557-defer-dom-tree-binding-in-angularjs-with-delayed-transclusion.htm - useless
+  - https://www.bennadel.com/blog/2751-scope-applyasync-vs-scope-evalasync-in-angularjs-1-3.htm
+  - https://www.bennadel.com/blog/2605-scope-evalasync-vs-timeout-in-angularjs.htm
