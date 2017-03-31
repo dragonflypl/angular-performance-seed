@@ -20,7 +20,7 @@
 			<td ng-bind="show(item, 'nationality')"></td>
 			<td ng-bind="show(item, 'status')"></td>
 			<td title="{{item.aboutMe}}">About me</td>
-			<td ng-bind="show(item, 'balance')"></td>
+			<td ng-bind="::show(item, 'balance')"></td>
 		</tr>
 	</tbody>
 </table>
