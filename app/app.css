@@ -24,46 +24,46 @@
   padding-right: 0.3em;
 }
 
-.gmail {
+.gmail > td:nth-child(5) {
 	background-color: grey;
 }
 
-.hotmail {
+.hotmail > td:nth-child(5) {
 	background-color: yellow;
 }
 
-.othermail {
+.othermail > td:nth-child(5) {
 	background-color: white;
 }
 
-.poor {
+.poor > td:nth-child(9) {
 	background-color: red;
 }
 
-.rich {
+.rich > td:nth-child(9) {
 	background-color: blue;
 }
 
-.free {
+.free > td:nth-child(7) {
 	color: green;
 }
 
-.taken {
+.taken > td:nth-child(7) {
 	color: red;
 }
 
-.dotted {
+.dotted > td:nth-child(4) {
 	text-decoration: underline;
 }
 
-.not-dotted {
+.not-dotted > td:nth-child(4) {
 	text-decoration: line-through;
 }
 
-.odd {
+.odd > td:nth-child(1) {
 	color: red;
 }
 
-.even {
+.even > td:nth-child(1) {
 	color: green;
 }

@@ -24,23 +24,6 @@ angular.module('myApp.view1', ['ngRoute'])
 
     $scope.search = {};
 
-    $scope.numericBalance = function(balance) {
-        if (!balance) {
-            return;
-        }
-        return +balance.substring(1);
-    }
-    
-    $scope.mailType = function(email) {
-        if (email.indexOf('@gmail') != -1) {
-            return 'gmail';
-        }
-        if (email.indexOf('@hotmail') != -1) {
-            return 'hotmail';
-        }  
-        return 'othermail';
-    }
-
     $scope.load = function(num) {
     	fetchData(num);
     }
