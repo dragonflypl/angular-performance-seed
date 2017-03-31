@@ -8,13 +8,12 @@
 		</tr>
 	</thead>
 	<tbody>
-		<tr ng-repeat="item in filteredData | limitTo: 3000 | filter:propsFilter" ng-init="showEmail = false" user-styles>
+		<tr ng-repeat="item in filteredData | limitTo: 3000 | filter:propsFilter" user-styles>
 			<td ng-bind="show(item, 'id')"></td>
 			<td ng-bind="show(item, 'firstName')"></td>
 			<td ng-bind="show(item, 'lastName')"></td>
 			<td ng-bind="show(item, 'phone')"></td>
-			<td class="email-col" ng-click="showEmail = true">				
-				<a ng-if="showEmail" href="mailto:{{show(item, 'email')}}">{{show(item, 'email')}}</a>
+			<td class="email-col" reveal-email>				
 			</td>
 			<!-- <td ng-bind="show(item, 'email')"></td> -->
 			<td ng-bind="show(item, 'nationality')"></td>
