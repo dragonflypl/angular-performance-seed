@@ -68,6 +68,8 @@ angular.module('myApp.view1', ['ngRoute'])
     }
 
     setInterval(function triggerDigest() {
+        if ($scope.suppress) return;
+        
         properties = {};
         $scope.data.forEach(function(x) {
             x.id += 1;
@@ -78,6 +80,6 @@ angular.module('myApp.view1', ['ngRoute'])
             console.log(property + ' called ' + properties[property] + " times");
         }
         $log.info('customLinky called ' + customLinky.counter + " times");
-        $log.warn('$scope.propsFilter.couter called ' + $scope.propsFilterCounter + " times");
+        $log.warn('$scope.propsFilter.couter called ' + $scope.propsFilterCounter + " times");        
     }, 3000);
 });
