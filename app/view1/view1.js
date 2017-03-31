@@ -68,8 +68,8 @@ angular.module('myApp.view1', ['ngRoute'])
     }
 
     setInterval(function triggerDigest() {
-        if ($scope.suppress) return;
-        
+        if (!$scope.trigger) return;
+
         properties = {};
         $scope.data.forEach(function(x) {
             x.id += 1;

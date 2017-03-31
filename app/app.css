@@ -67,3 +67,7 @@
 .even > td:nth-child(1) {
 	color: green;
 }
+
+.email-col {
+	min-width: 100px;
+}

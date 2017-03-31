@@ -1,26 +1,26 @@
 <button ng-click="load(1)">Load 1</button>
 <button ng-click="load(2)">Load 2</button>
-<input type=checkbox ng-model="suppress">Suppress</input>
+<input type="checkbox" ng-model="trigger">Trigger</input>
 <table>
 	<thread>
 		<tr>	
-			<td colspan=9><input placeholder="Filter by email" ng-model="search.email"</td>		
+			<td colspan=9><input placeholder="Filter by email" ng-checked="true" ng-model="search.email"</td>		
 		</tr>
 	</thead>
 	<tbody>
-		<tr ng-repeat="item in filteredData | limitTo: 3000 | filter:propsFilter" user-styles>
-			<td><span ng-show="$index % 2">{{show(item, 'id')}}</span></td>
+		<tr ng-repeat="item in filteredData | limitTo: 3000 | filter:propsFilter" ng-init="showEmail = false" user-styles>
+			<td ng-bind="show(item, 'id')"></td>
 			<td ng-bind="show(item, 'firstName')"></td>
 			<td ng-bind="show(item, 'lastName')"></td>
 			<td ng-bind="show(item, 'phone')"></td>
-			<td>
-				<a href="mailto:{{show(item, 'email')}}">{{show(item, 'email')}}</a>
-			</td> 
+			<td class="email-col" ng-click="showEmail = true">				
+				<a ng-if="showEmail" href="mailto:{{show(item, 'email')}}">{{show(item, 'email')}}</a>
+			</td>
 			<!-- <td ng-bind="show(item, 'email')"></td> -->
 			<td ng-bind="show(item, 'nationality')"></td>
 			<td ng-bind="show(item, 'status')"></td>
 			<td title="{{item.aboutMe}}">About me</td>
-			<td ng-bind="::(show(item, 'balance') || '')"></td>
+			<td ng-bind="(show(item, 'balance') || '')"></td>
 		</tr>
 	</tbody>
 </table>
