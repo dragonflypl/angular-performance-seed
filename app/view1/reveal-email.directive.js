@@ -4,11 +4,11 @@
 
 	angular.module('myApp.view1').directive('revealEmail', function($compile) {
 		return {
-			link: function(scope, element) {
-				element.one('click', function() {
-					element.append($compile(template)(scope));
-					scope.$digest();
-				});
+			controller: function($scope, $element) {	
+				this.doAction = function() {
+					$element.append($compile(template)($scope));
+					$scope.$digest();					
+				}
 			}
 		}
 	});

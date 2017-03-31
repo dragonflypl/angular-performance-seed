@@ -7,7 +7,7 @@
 			<td colspan=9><input placeholder="Filter by email" ng-checked="true" ng-model="search.email"</td>		
 		</tr>
 	</thead>
-	<tbody users-actions>
+	<tbody user-actions>
 		<tr ng-repeat="item in filteredData | limitTo: 3000 | filter:propsFilter" user-styles>
 			<td ng-bind="show(item, 'id')"></td>
 			<td ng-bind="show(item, 'firstName')"></td>
