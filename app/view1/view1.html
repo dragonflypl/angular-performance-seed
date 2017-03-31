@@ -9,7 +9,7 @@
 	</thead>
 	<tbody>
 		<tr ng-repeat="item in filteredData | limitTo: 3000 | filter:propsFilter" user-styles>
-			<td ng-bind="show(item, 'id')"></td>
+			<td><span ng-show="$index % 2">{{show(item, 'id')}}</span></td>
 			<td ng-bind="show(item, 'firstName')"></td>
 			<td ng-bind="show(item, 'lastName')"></td>
 			<td ng-bind="show(item, 'phone')"></td>
@@ -20,7 +20,7 @@
 			<td ng-bind="show(item, 'nationality')"></td>
 			<td ng-bind="show(item, 'status')"></td>
 			<td title="{{item.aboutMe}}">About me</td>
-			<td ng-bind="::show(item, 'balance')"></td>
+			<td ng-bind="::(show(item, 'balance') || '')"></td>
 		</tr>
 	</tbody>
 </table>
