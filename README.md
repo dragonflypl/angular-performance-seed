@@ -145,31 +145,24 @@ How to improve performance:
 - debounce ng-model with ng-model-options
 - use one time binding (::) 
 - make sure onetime binding is "stable"
+- disable ngAnimate globally / enable is explicitly with `$animateProvider.classNameFilter`: https://www.bennadel.com/blog/2935-enable-animations-explicitly-for-a-performance-boost-in-angularjs.htm
+- use WeakMap / WeakSet (never hold a reference to DOM elements)
+- throttle / debounce mouse events (do not use angulars directives for mouse events)
+- caching ($http with $cacheFactory)
+- don't use deep watch `$watch`. Switch from deep watch to `$watchCollection`. If deep watch must be used, watch only subset of data (`_.map`)
+- use native JavaScript & lodash
+- delayed transclusion: ng-if / switch are cool as they delay linking of a DOM elements (as a result, delay watchers creation)
+- don't use filters for sorting!
+- clean after yourself in $destroy ($watch,$on,$timeout), unbind watchers
+- make manual watchers lightning fast / reduce number of watchers :)
+- avoid using filters if at all possible. They are run twice per digest cycle, once when anything changes, and another time to collect further changes
+- use applyAsync (group many async operations into one digest)
+- check compileProvider settings (debugInfoEnabled, *DirectivesEnabled)
 
 How to improve performance (to prove):
-
-- disable ngAnimate globally / enable is explicitly with `$animateProvider.classNameFilter`: https://www.bennadel.com/blog/2935-enable-animations-explicitly-for-a-performance-boost-in-angularjs.htm
 - use angular components and one way binding (read about it and explain)
 - defered interpolation (my favourite): (https://www.bennadel.com/blog/2704-deferring-attribute-interpolation-in-angularjs-for-better-performance.htm)
-- delayed transclusion: ng-if / switch are cool as they delay linking of a DOM elements (as a result, delay watchers creation)
-- useCache factory
-- use WeakMap / WeakSet
-- clean after yourself in $destroy ($watach,$on,$timeout)
-- throttle / debounce mouse events
-- use applyAsync (group many async operations into one digest)
-- unbind watchers
-- do not use angulars directives for mouse events
-- avoid using filters if at all possible. They are run twice per digest cycle, once when anything changes, and another time to collect further changes
-- disable debug data! (debugInfoEnabled)
-
-- don't use filters for sorting!
-- reduce number of watchers :)
-- make manual watchers lightning fast
-- don't use deep watch `$watch`
-- switch from deep watch to `$watchCollection`
-- if deep watch must be used, watch only subset of data (`_.map`)
 - virtualize ngRepeat
-- use native JavaScript & lodash
 
 # Hands on performance
 
@@ -205,9 +198,9 @@ Let's add more statistics:
 ```
     var properties = {};
     
-    $scope.show = function(item, property) {    	
+    $scope.show = function(item, property) {      
         properties[property] = (properties[property] || 0) + 1;
-    	return item[property];
+      return item[property];
     }   
     
     setInterval(function triggerDigest() {
@@ -276,7 +269,7 @@ Faster alternative:
 
 ```
 <td>
-	<a href="mailto:{{show(item, 'email')}}">{{show(item, 'email')}}</a>
+  <a href="mailto:{{show(item, 'email')}}">{{show(item, 'email')}}</a>
 </td> 
 ```
 
@@ -347,8 +340,8 @@ DOM operations are slower so make right call - if elements are often toggled the
 Another usage could be with email col. Let's assume we want to show email when cell is clicked:
 
 ```
-<td class="email-col" ng-click="showEmail = true">				
-	<a ng-show="showEmail" href="mailto:{{show(item, 'email')}}">{{show(item, 'email')}}</a>
+<td class="email-col" ng-click="showEmail = true">        
+  <a ng-show="showEmail" href="mailto:{{show(item, 'email')}}">{{show(item, 'email')}}</a>
 </td> 
 ```
 
@@ -390,16 +383,71 @@ Let's check how many event handlers do we have registered on the page:
 
 > git checkout  23-event-delegation-implemented
 
+## angular-animate
+
+By enabling `ngAnimate` module, some directives (like ngRepeat) will perform additional work to mark DOM elements with special classes that enable animations. Let's enable animations globally and see what will happen on page load & data reload.
+
+> git checkout 24-ng-animate
+
+Initial/Reload digest cycle increased from ~1sec to 5sec, even though we don't have any animations on the page.
+
+Solution is to disable ngAnimate completely or apply animation filter:
+
+```
+$animateProvider.classNameFilter( /\banimatable\b/ );
+```
+
+
+## WeakMap/WeakSet (do not hold reference to DOM elements)
+
+Let's assume we want to extend `userActions` directive to execute `revealEmail` action only once per row.
+
+> git checkout 25-memory-leak
+
+And analyze profile snapshot. 
+
+Now let's do the same for solutions with `WeakSet`:
+
+> git checkout 26-weakset
+
+## Throttle / debounce 
+
+Simple as that : for mouse events / stream of events use `_.throttle` / `_.debounce` and in general avoid mouse directives as they trigger full digest cycle .
+
+## $cacheFactory
+
+Angular has built in cache mechanism (e.g. used to cache templates). It works smoothly with `$http` service and it is possible to cache responses independently from other caching mechanisms (like `Cache-Control`).
+
+Let's enable throttling & enable/disable data caching.
+
+> git checkout 27-cacheFactory
+
+## $compileProvider & $httpProvider
+
+Use providers settings to speed up the app.
+
+## Do not show too much
+
+- use infinite/virtual scrolling
+
+> git checkout 28-virtual-scroll
+
+## $broadcast vs $emit
+
+## $$watchers
+
+Detaching $$watchers for scopes outside of viewport:
+
+> http://engineering.curalate.com/2016/01/17/angular-perf.html
+
+
 # TODO: 
 
 - amazing example of using profiler ! https://www.bennadel.com/blog/2635-looking-at-how-scope-evalasync-affects-performance-in-angularjs-directives.htm
 - use empty ng-repeat, show that it creates watchers
 - https://docs.google.com/document/d/1K-mKOqiUiSjgZTEscBLjtjd6E67oiK8H2ztOiq5tigk/pub
 - do filters affect number of watchers ? how one time binding works with filters ? 
-- httpprovider useApplyAsync
 - show example : watching by reference with directive (how & when watchers are called)
-- $digest
-- $broadcast & $emit
 - $watch - observe model mutations
 - $apply - propagate model changes if done outside of angular world
 - CRUCIAL: https://github.com/bahmutov/code-snippets
