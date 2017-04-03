@@ -4,6 +4,7 @@
 angular.module('myApp', [
   'ngRoute',
   'ngSanitize',
+  'ngAnimate',
   'myApp.view1',
   'myApp.view2'
 ]).
