@@ -3,9 +3,9 @@
 	angular.module('myApp.view1').directive('userActions', function($compile) {
 		return {
 			controller: function($scope) {
-				this.emailCells = [];	
+				this.emailCells = new WeakSet();	
 				this.registerEmailCell = function(element) {
-					this.emailCells.push(element);
+					this.emailCells.add(element);
 				}	
 
 				$scope.ctrl = this;
@@ -13,10 +13,9 @@
 			link: function(scope, element, attrs, controller) {
 				var controller = scope.ctrl;
 				element.on('mouseover', '.email-col', function(event) {
-					var elementIndex = controller.emailCells.indexOf(event.currentTarget);
-					if (elementIndex !== -1) {
+					if (controller.emailCells.has(event.currentTarget)) {
 						angular.element(event.currentTarget).controller('revealEmail').doAction();	
-						controller.emailCells.splice(elementIndex, 1);
+						controller.emailCells.delete(event.currentTarget);
 					}
 				});
 
