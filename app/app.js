@@ -8,9 +8,10 @@ angular.module('myApp', [
   'myApp.view1',
   'myApp.view2'
 ]).
-config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
+config(['$animateProvider', '$locationProvider', '$routeProvider', function($animateProvider, $locationProvider, $routeProvider) {
   $locationProvider.hashPrefix('!');
   $routeProvider.otherwise({redirectTo: '/view1'});
+  $animateProvider.classNameFilter( /\banimatable\b/ );
 }]).
 run(function($rootScope, $log) {
 
