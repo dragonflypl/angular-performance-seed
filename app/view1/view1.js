@@ -17,8 +17,9 @@ angular.module('myApp.view1', ['ngRoute'])
     customLinky.counter = 0;
     return customLinky;
 })
-.controller('View1Ctrl', function($log, $http, $scope, $interval, $filter) {
+.controller('View1Ctrl', function($cacheFactory, $log, $http, $scope, $interval, $filter) {
 
+    var dataCache = $cacheFactory('dataCache');
     var properties = {};
     var customLinky = $filter('customLinky');
 
@@ -62,7 +63,11 @@ angular.module('myApp.view1', ['ngRoute'])
 	$scope.load(1);
 
     function fetchData(num) {
-	    $http.get('../data' +  num + '.json').then(function(response) {
+	    $http({
+            method: 'GET',
+            url: '../data' +  num + '.json',
+            cache: dataCache
+        }).then(function(response) {
 	    	$scope.filteredData = $scope.data = response.data;
 	    })
     }

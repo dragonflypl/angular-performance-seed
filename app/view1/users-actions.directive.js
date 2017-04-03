@@ -12,14 +12,12 @@
 			},
 			link: function(scope, element, attrs, controller) {
 				var controller = scope.ctrl;
-				element.on('mouseover', '.email-col', function(event) {
+				element.on('mouseover', '.email-col', function(event) {					
 					if (controller.emailCells.has(event.currentTarget)) {
 						angular.element(event.currentTarget).controller('revealEmail').doAction();	
 						controller.emailCells.delete(event.currentTarget);
 					}
-				});
-
-			
+				});		
 			}
 		}
 	});
