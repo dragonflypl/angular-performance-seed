@@ -11,6 +11,7 @@
     "angular-loader": "~1.5.0",
     "angular-mocks": "~1.5.0",
     "angular-route": "~1.5.0",
+    "angular-vs-repeat": "^1.1.7",
     "html5-boilerplate": "^5.3.0",
     "json-schema-faker": "^0.4.1",
     "jsonfile": "^2.4.0"

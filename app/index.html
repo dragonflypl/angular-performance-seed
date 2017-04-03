@@ -31,6 +31,8 @@
   <script src="../node_modules/angular-route/angular-route.js"></script>
   <script src="../node_modules/angular-sanitize/angular-sanitize.js"></script>
   <script src="../node_modules/angular-animate/angular-animate.js"></script>
+  <script src="../node_modules/angular-vs-repeat/src/angular-vs-repeat.js"></script>
+  
   <script src="app.js"></script>
   <script src="view1/view1.js"></script>
   <script src="view2/view2.js"></script>
@@ -39,29 +41,29 @@
   <script src="view1/users-actions.directive.js"></script>
   <script>
 
-  	requestAnimationFrame(showFps);
+ //  	requestAnimationFrame(showFps);
 
-  	var progressBar = document.getElementById('progress-bar'), progress = 0;
-	progressBar.style.width = progress + "%";
+ //  	var progressBar = document.getElementById('progress-bar'), progress = 0;
+	// progressBar.style.width = progress + "%";
 
-  	function showFps(snapshot) {
-  		progressBar.style.width = (progress++ % 1000) / 10 + "%";	
-  		requestAnimationFrame(showFps);
-  	}
+ //  	function showFps(snapshot) {
+ //  		progressBar.style.width = (progress++ % 1000) / 10 + "%";	
+ //  		requestAnimationFrame(showFps);
+ //  	}
 
-	(function() {
-	    var script = document.createElement('script');
-	    script.onload = function() {
-	        var stats = new Stats();
-	        document.body.appendChild(stats.dom);
-	        requestAnimationFrame(function loop() {
-	            stats.update();
-	            requestAnimationFrame(loop)
-	        });
-	    };
-	    script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';
-	    document.head.appendChild(script);
-	})()
+	// (function() {
+	//     var script = document.createElement('script');
+	//     script.onload = function() {
+	//         var stats = new Stats();
+	//         document.body.appendChild(stats.dom);
+	//         requestAnimationFrame(function loop() {
+	//             stats.update();
+	//             requestAnimationFrame(loop)
+	//         });
+	//     };
+	//     script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';
+	//     document.head.appendChild(script);
+	// })()
 
   </script>  
 </body>

@@ -6,7 +6,8 @@ angular.module('myApp', [
   'ngSanitize',
   'ngAnimate',
   'myApp.view1',
-  'myApp.view2'
+  'myApp.view2',
+  'vs-repeat'
 ]).
 config(['$animateProvider', '$locationProvider', '$routeProvider', function($animateProvider, $locationProvider, $routeProvider) {
   $locationProvider.hashPrefix('!');

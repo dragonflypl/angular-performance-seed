@@ -1,19 +1,22 @@
 <button ng-click="load(1)">Load 1</button>
 <button ng-click="load(2)">Load 2</button>
 <input type="checkbox" ng-model="trigger">Trigger</input>
+<div id="vs-container" style="height: 400px; overflow: scroll">
 <table>
 	<thread>
 		<tr>	
 			<td colspan=9><input placeholder="Filter by email" ng-checked="true" ng-model="search.email"</td>		
 		</tr>
 	</thead>
-	<tbody user-actions>
-		<tr ng-repeat="item in filteredData | limitTo: 3000 | filter:propsFilter" user-styles>
+	<tbody vs-repeat
+			vs-excess="100"
+			vs-scroll-parent="#vs-container">
+		<tr ng-repeat="item in filteredData | filter:propsFilter" user-styles>
 			<td ng-bind="show(item, 'id')"></td>
 			<td ng-bind="show(item, 'firstName')"></td>
 			<td ng-bind="show(item, 'lastName')"></td>
 			<td ng-bind="show(item, 'phone')"></td>
-			<td class="email-col" reveal-email>				
+			<td class="email-col">				
 			</td>
 			<!-- <td ng-bind="show(item, 'email')"></td> -->
 			<td ng-bind="show(item, 'nationality')"></td>
@@ -23,3 +26,5 @@
 		</tr>
 	</tbody>
 </table>
+</div>
+</div>
