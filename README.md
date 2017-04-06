@@ -440,6 +440,16 @@ Detaching $$watchers for scopes outside of viewport:
 
 > http://engineering.curalate.com/2016/01/17/angular-perf.html
 
+## ngRepeat chunking
+
+> git checkout 10-performance-data-seed
+
+Initial experience slow - UI freeze - show one long digest cycle and 3000sec frame
+
+> git tag 29-chunking
+
+Experience better but longer time to render whole table, play around with chunk size
+
 
 # TODO: 
 
