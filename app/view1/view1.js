@@ -23,7 +23,31 @@ angular.module('myApp.view1', ['ngRoute'])
 
     function fetchData(num) {
 	    $http.get('../data' +  num + '.json').then(function(response) {
-	    	$scope.data = response.data;
+	    	chunkData(response.data, 50);
 	    })  
+    }
+
+    function chunkData(data, chunkSize) {
+        var chunks = [];
+        for(var i = 0; i < data.length; i += chunkSize) {
+            chunks.push(data.slice(i, i + chunkSize));
+        }
+
+        $scope.data = [];
+
+        Array.prototype.push.apply($scope.data, chunks.shift());
+
+        function renderChunk() {
+
+            Array.prototype.push.apply($scope.data, chunks.shift());
+
+            $scope.$digest();
+            
+            if (chunks.length) {
+                requestAnimationFrame(renderChunk);
+            }
+        }
+
+        requestAnimationFrame(renderChunk);
     }
 });
