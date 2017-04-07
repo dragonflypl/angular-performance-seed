@@ -1,17 +1,33 @@
+<style>
+	@-moz-keyframes spin {
+	    from { -moz-transform: rotate(0deg); }
+	    to { -moz-transform: rotate(360deg); }
+	}
+	@-webkit-keyframes spin {
+	    from { -webkit-transform: rotate(0deg); }
+	    to { -webkit-transform: rotate(360deg); }
+	}
+	@keyframes spin {
+	    from {transform:rotate(0deg);}
+	    to {transform:rotate(360deg);}
+	}
+
+	.balance-animation {
+		-webkit-animation: spin 1s linear;
+	}
+
+</style>
 <button ng-click="load(1)">Load 1</button>
 <button ng-click="load(2)">Load 2</button>
 <input type="checkbox" ng-model="trigger">Trigger</input>
-<div id="vs-container" style="height: 400px; overflow: scroll">
 <table>
 	<thread>
 		<tr>	
 			<td colspan=9><input placeholder="Filter by email" ng-checked="true" ng-model="search.email"</td>		
 		</tr>
 	</thead>
-	<tbody vs-repeat
-			vs-excess="100"
-			vs-scroll-parent="#vs-container">
-		<tr ng-repeat="item in filteredData | filter:propsFilter" user-styles>
+	<tbody>
+		<tr ng-repeat="item in filteredData | limitTo: 300 | filter:propsFilter" user-styles>
 			<td ng-bind="show(item, 'id')"></td>
 			<td ng-bind="show(item, 'firstName')"></td>
 			<td ng-bind="show(item, 'lastName')"></td>
@@ -22,9 +38,8 @@
 			<td ng-bind="show(item, 'nationality')"></td>
 			<td ng-bind="show(item, 'status')"></td>
 			<td title="{{item.aboutMe}}">About me</td>
-			<td ng-bind="(show(item, 'balance') || '')"></td>
+			<td balance-animation ng-bind="(show(item, 'balance') || '')"></td>
 		</tr>
 	</tbody>
 </table>
-</div>
 </div>
