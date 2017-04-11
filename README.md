@@ -99,9 +99,17 @@ Let's see how it looks in dev tools:
 
 This is addition to the `$digest` cycle. In reality, apart from `$watch` list, Angular is storing additional queue: `$evalAsync` queue. This is useful when we need to execute some code asynchronously i.e. at the beginning of next digest cycle loop. Putting something into this queue will enforce additional digest iteration.
 
+> git checkout 05-eval-async
+
 Also use `$applyAsync` to queue async code that will be run before next `$digest` cycle.
 
-> git checkout 05-eval-async
+Difference: 
+
+- `$evalAsync` queue is flushed inside digest loop, at the beginning of the iteration.
+- `$applyAsync` queue is flushed before digest loop, at the beginning of dirty checking
+
+Let's thing about consequences...
+
 
 ### $watch strategies
 
@@ -450,10 +458,13 @@ Initial experience slow - UI freeze - show one long digest cycle and 3000sec fra
 
 Experience better but longer time to render whole table, play around with chunk size
 
+## $applyAsync
+
+Let's assume we have a directive that is doing some animation of visible content : `balance-animation`
+
 
 # TODO: 
 
-- amazing example of using profiler ! https://www.bennadel.com/blog/2635-looking-at-how-scope-evalasync-affects-performance-in-angularjs-directives.htm
 - use empty ng-repeat, show that it creates watchers
 - https://docs.google.com/document/d/1K-mKOqiUiSjgZTEscBLjtjd6E67oiK8H2ztOiq5tigk/pub
 - do filters affect number of watchers ? how one time binding works with filters ? 
@@ -474,7 +485,7 @@ angular.element(document.querySelector('[ng-app]')).injector().invoke(function($
 
 # TODO-DONE
 
-
+- amazing example of using profiler ! https://www.bennadel.com/blog/2635-looking-at-how-scope-evalasync-affects-performance-in-angularjs-directives.htm
 - https://www.binpress.com/tutorial/speeding-up-angular-js-with-simple-optimizations/135
 - https://www.qualtrics.com/eng/tuning-angularjs-performance/
 - https://www.airpair.com/angularjs/posts/angularjs-performance-large-applications
