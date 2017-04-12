@@ -41,7 +41,7 @@ var schema = {
         balance: {
           "type": "string",
           "faker": {
-            "finance.amount": [100, 1000000, 2, "$"]
+            "finance.amount": [100, 1000000, 2]
           }
         }
       },

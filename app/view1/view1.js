@@ -17,13 +17,29 @@ angular.module('myApp.view1', ['ngRoute'])
     customLinky.counter = 0;
     return customLinky;
 })
-.controller('View1Ctrl', function($cacheFactory, $log, $http, $scope, $interval, $filter) {
+.controller('View1Ctrl', function($timeout, $cacheFactory, $log, $http, $scope, $interval, $filter) {
 
     var dataCache = $cacheFactory('dataCache');
     var properties = {};
     var customLinky = $filter('customLinky');
 
     $scope.search = {};
+
+    var conversionRates = {};
+
+    $interval(function() {
+        conversionRates = {
+            pln: Math.random(),
+            eur: Math.random(),
+            usd: Math.random()
+        }
+    }, 1000);
+
+    $scope.valueInManyCurrencies = function(balance) {
+        return balance * conversionRates.pln + "PLN / " +
+            balance * conversionRates.eur + " EUR / " +
+            balance * conversionRates.usd + " USD"
+    }
 
     $scope.load = function(num) {
     	fetchData(num);
