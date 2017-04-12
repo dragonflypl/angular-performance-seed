@@ -9,9 +9,14 @@ window.measureCRP = function() {
     document.body.appendChild(stats);
 }
 
+setTimeout(function() {
+    const messages = Array.from(document.getElementsByClassName("message"));
 
-const message = document.getElementById("message");
-
-setInterval(function() {
-    message.classList.toggle("highlighted");
-}, 2000)
+    for(let i = 0; i < messages.length; i++) {
+        const message = messages[i];
+        const height = (message.clientHeight + 1)
+        const width = (message.clientWidth + 1);
+        message.style.height =  height + 'px';
+        message.style.width = width + 'px';
+    }
+}, 5000);
