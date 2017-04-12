@@ -1,0 +1,33 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/main.css">
+        <script>
+
+        </script>
+    </head>
+    <body onload="measureCRP()">
+        <p>Hello world! This is HTML5 Boilerplate.</p>
+        <button>Click Me!</button>
+        <script src="js/main.js"></script>
+        <!--<script async src="js/large1.js"></script>-->
+        <!--<script async src="js/large2.js"></script>-->
+        <p>
+            <footer>
+                © waszczpa
+            </footer>
+        </p>
+    </body>
+    <script>
+        window.performance.mark("mark_start");
+        window.performance.mark("mark_end");
+        window.performance.measure("measure_sth", "mark_start", "mark_end");
+        var time = window.performance.getEntriesByName("measure_sth");
+        console.log("Time to create date object: " + time[0].duration + "ms");
+    </script>
+</html>
