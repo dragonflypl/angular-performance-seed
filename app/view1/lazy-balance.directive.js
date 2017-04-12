@@ -1,5 +1,4 @@
 (function() {
-
     angular.module('myApp.view1').directive('lazyBalance', function( $interpolate ) {
         function compile( tElement, tAttributes ) {
             var interpolation = $interpolate( tAttributes.lazyBalance );

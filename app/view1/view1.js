@@ -27,7 +27,7 @@ angular.module('myApp.view1', ['ngRoute'])
 
     var conversionRates = {};
 
-    $interval(function() {
+    setInterval(function() {
         conversionRates = {
             pln: Math.random(),
             eur: Math.random(),
