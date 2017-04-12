@@ -8,3 +8,10 @@ window.measureCRP = function() {
         'dcl: ' + dcl + 'ms, complete: ' + complete + 'ms';
     document.body.appendChild(stats);
 }
+
+
+const message = document.getElementById("message");
+
+setInterval(function() {
+    message.classList.toggle("highlighted");
+}, 2000)
